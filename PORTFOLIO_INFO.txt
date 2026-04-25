@@ -1,0 +1,460 @@
+================================================================================
+  ARPAN KAR — PORTFOLIO WEBSITE
+  Full Documentation for AI / Developer Reference
+  Version: 3.0  |  Updated: April 2026
+================================================================================
+
+--------------------------------------------------------------------------------
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+
+This is a single-page application (SPA) portfolio website for Arpan Kar,
+a Diploma in Electronics & Tele-Communication Engineering (DETCE) student at
+Jnan Chandra Ghosh Polytechnic (JCGP).
+
+Stack:
+  - Vite + React 18 + TypeScript
+  - Tailwind CSS (utility classes only, no JIT config needed in production build)
+  - Framer Motion (page transitions, card animations, modal animations)
+  - Lucide React (icons)
+
+Theme:
+  - Background: Near-black (#050508)
+  - Primary Accent: Dark Pink (#dc3c82)
+  - Previously was purple (#7c3aed), changed to dark pink in v3.0
+  - All CSS variables live in src/index.css under :root
+
+Design Language:
+  - Engineering / HUD aesthetic
+  - Monospace fonts for labels (Share Tech Mono / Space Mono)
+  - Scanline overlay texture
+  - Glitch elements, pixel-style borders
+  - Custom cursor (no default browser cursor)
+  - Background: WebGL animated "ElectroPool" particle shader
+
+--------------------------------------------------------------------------------
+2. FILE STRUCTURE
+--------------------------------------------------------------------------------
+
+portfolio/
+├── index.html                  ← Vite entry point
+├── package.json                ← dependencies (see section 3)
+├── vite.config.ts
+├── tailwind.config.js
+├── tsconfig.json + tsconfig.app.json + tsconfig.node.json
+├── postcss.config.js
+├── eslint.config.js
+├── .gitignore
+
+├── src/
+│   ├── main.tsx                ← React DOM root mount
+│   ├── App.tsx                 ← Root component, routing, music, page state
+│   ├── App.css                 ← Minimal app-level overrides
+│   ├── index.css               ← All CSS variables, global styles, animations
+│   │
+│   ├── components/
+│   │   ├── Cursor.tsx                  ← Custom animated cursor (hides default)
+│   │   ├── ElectroPoolBackground.tsx   ← WebGL canvas shader background
+│   │   ├── Footer.tsx                  ← Page footer with signature + links
+│   │   ├── LoadingScreen.tsx           ← Boot sequence / loading animation
+│   │   ├── MediaLightbox.tsx           ← Single image fullscreen lightbox
+│   │   ├── Navigation.tsx              ← 7-tab HUD top navigation bar
+│   │   ├── PageWrapper.tsx             ← Framer Motion page slide wrapper
+│   │   ├── SocialDock.tsx              ← Grouped social links component
+│   │   └── StackedMediaViewer.tsx      ← Multi-image stacked gallery (legacy,
+│   │                                      now superseded by inline viewers)
+│   │
+│   └── pages/
+│       ├── HomePage.tsx                ← Hero section, name, tagline
+│       ├── PersonalInfoPage.tsx        ← Profile, skills, timeline
+│       ├── ProjectsPage.tsx            ← ★ PROJECT BOARD (main update in v3)
+│       ├── CertificationsPage.tsx      ← Certificate gallery with lightbox
+│       ├── AchievementsPage.tsx        ← ★ ACHIEVEMENTS (updated in v3)
+│       ├── ContactsPage.tsx            ← Contact info cards
+│       └── SocialsPage.tsx             ← Social media links
+
+├── public/
+│   └── assets/
+│       ├── photo.png           ← Profile photo
+│       ├── music.mp3           ← Background ambient music (loops)
+│       │
+│       ├── certs/              ← Certificate image files
+│       │   ├── certifications_1_eagle.png
+│       │   ├── certifications_2_python.png
+│       │   ├── certifications_3_prasarbharati.png
+│       │   ├── certifications_4_interview.png
+│       │   ├── certifications_5_iot.png
+│       │   ├── certifications_6_100hours.jpeg
+│       │   └── certifications_7_solar.jpeg
+│       │
+│       ├── achievements/       ← Achievement media files
+│       │   ├── achivments_1_speech_1.jpeg   (Engineer's Day speech - photo 1)
+│       │   ├── achivments_1_speech_2.jpeg   (Engineer's Day speech - photo 2)
+│       │   ├── achivments_1_speech_3.jpeg   (Engineer's Day speech - photo 3)
+│       │   ├── achivments_1_speech_4.jpg    (Engineer's Day speech - photo 4, NEW)
+│       │   ├── achivments_1_speech_5.jpg    (Engineer's Day speech - photo 5, NEW)
+│       │   ├── achivments_1_speech_6.jpg    (Engineer's Day speech - photo 6, NEW)
+│       │   ├── achivments_2_jistech_1.jpeg  (JIS Tech Fest photo 1)
+│       │   └── achivments_2_jistech_2.jpeg  (JIS Tech Fest photo 2)
+│       │
+│       └── projects/           ← Project media files (44 images, added in v3)
+│           ├── 1_Projects_media_*_solartracker.jpg       (2 images)
+│           ├── 2_Projects_media_*_12vchaser.jpg          (4 images)
+│           ├── 4_Projects_media_*_dcovervoltage.jpg      (5 images)
+│           ├── 6_Projects_media_*_ukulele-guitarpickup.jpg (5 images)
+│           ├── 7_Projects_media_*_dcover-undervoltage.jpg  (5 images)
+│           ├── 8_Projects_media_1_classdamp.jpg          (1 image)
+│           ├── 9_Projects_media_1_doubletransistoramp.jpg (1 image)
+│           ├── 10_Projects_media_*_astablemultivibrator.jpg (3 images)
+│           ├── 11_Projects_media_*_policeflasher.jpg     (4 images)
+│           ├── 12_Projects_media_*_rfcrystalosc.jpg      (2 images)
+│           ├── 13_Projects_media_*_emfdetector.jpg       (4 images)
+│           └── 14_Projects_media_*_habr.jpeg / *_intensitycontrolled.jpg (8 images)
+
+--------------------------------------------------------------------------------
+3. DEPENDENCIES (package.json)
+--------------------------------------------------------------------------------
+
+To install: npm install (inside the portfolio/ folder)
+To run dev:  npm run dev   → http://localhost:5173
+To build:    npm run build → output in dist/
+
+Key packages:
+  react + react-dom: 18.x
+  framer-motion: 11.x     ← AnimatePresence, motion, transitions
+  lucide-react: latest    ← Icons (Trophy, X, ChevronLeft, Play, etc.)
+  tailwindcss: 3.x        ← Utility CSS (core classes only used)
+  typescript: 5.x
+  vite: 5.x
+
+--------------------------------------------------------------------------------
+4. HOW THE APP WORKS (ROUTING & NAVIGATION)
+--------------------------------------------------------------------------------
+
+There is NO react-router or URL-based routing.
+Everything is handled via React state in App.tsx.
+
+Page state:
+  type Page = 'home' | 'personal' | 'projects' | 'certifications' |
+              'achievements' | 'contacts' | 'socials'
+
+PAGE_ORDER array defines swipe/keyboard sequence.
+PageWrapper wraps each page in a Framer Motion slide animation.
+
+Navigation methods:
+  - Click nav tabs in Navigation.tsx
+  - Swipe left/right (touch devices) — detected via touchstart/touchend
+  - Music toggle button in nav bar
+
+Music:
+  - Loaded as Audio() in App.tsx useEffect
+  - Starts on first user interaction (click, touch, keydown)
+  - Fades in to 0.5 volume
+  - Toggle button in nav shows play/pause state
+
+--------------------------------------------------------------------------------
+5. PROJECTS PAGE — DETAILED EXPLANATION (v3.0 MAJOR UPDATE)
+--------------------------------------------------------------------------------
+
+File: src/pages/ProjectsPage.tsx
+
+KEY FEATURES:
+
+A) Data Structure
+   Each project is defined by the Project interface:
+   {
+     id: string          ← unique ID
+     num: string         ← display number e.g. '#01'
+     name: string        ← project title
+     shortDesc: string   ← 1-2 sentence description (professional tone)
+     year: string        ← '2023', '2024', '2025'
+     tags: string[]      ← skill/tech tags (max 3 shown in card, rest counted)
+     media: MediaItem[]  ← array of images/videos (see below)
+     coverImg: string    ← path to the card preview image
+     glitchLabel?: string ← optional badge (e.g. 'MILESTONE')
+   }
+
+   MediaItem:
+   {
+     type: 'image' | 'youtube' | 'linkedin'
+     src: string         ← image path OR full YouTube/LinkedIn URL
+     thumb?: string      ← thumbnail override (for LinkedIn)
+   }
+
+B) Timeline Layout
+   Projects are grouped by year and separated by YearLine components.
+   Years display: 2023 → 2024 → 2025 → 2026 ↑ (ongoing)
+   The "2026 ↑" section contains only the LoadingCard.
+
+C) Project Cards (ProjectCard component)
+   - Default state: grayscale image, scanline overlay, minimal
+   - Hover state: color image, slight zoom (scale 1.016), pink border glow,
+     overlay text appears with project num + name + short description preview
+   - Click: opens ProjectModal
+
+D) Project Modal (ProjectModal component)
+   - Opens without page reload (AnimatePresence overlay)
+   - Click outside or press Escape to close
+   - Arrow keys (Left/Right) navigate between media items
+   - Media viewer area: 16:9 aspect ratio
+   
+   Image handling:
+   - objectFit: 'contain' (shows full image, no cropping)
+   - Background: #050508 (near black)
+   - Animated transitions between slides (Framer Motion mode="wait")
+   
+   YouTube handling:
+   - Embeds via iframe: https://www.youtube.com/embed/{VIDEO_ID}?rel=0
+   - Video ID extracted via regex from any youtube.com or youtu.be URL
+   - getYtId() helper function handles both URL formats
+   - Thumbnail strip shows YouTube thumbnail from img.youtube.com/vi/{id}/mqdefault.jpg
+   
+   LinkedIn handling:
+   - Cannot be embedded (blocked by LinkedIn)
+   - Shows play button overlay + optional thumbnail
+   - On click: window.open() to LinkedIn URL in new tab
+   
+   Thumbnail Strip:
+   - Shows all media as small 64×42px buttons below main viewer
+   - Active thumb: pink border + glow
+   - Inactive: grayscale + dark filter
+   - YouTube thumbs show play icon overlay
+
+E) Loading / Ongoing Card (LoadingCard component)
+   - Animated 4-dot bouncing loader
+   - Dashed pink border
+   - Animated pink line sweeping across the bottom
+   - No click interaction — purely decorative/indicative
+
+F) Current Projects (12 real projects, in order):
+   #01 Solar Tracker System          (2023, 2 images)
+   #02 12V LED Chaser Circuit        (2023, 4 images)
+   #03 DC Over-Voltage Protection    (2024, 5 images)
+   #04 Ukulele Guitar Pickup         (2024, 5 images)
+   #05 DC Under-Voltage Cutoff       (2024, 5 images)
+   #06 Class-D Amplifier             (2024, 1 image)
+   #07 Double-Stage Transistor Amp   (2024, 1 image)
+   #08 Astable Multivibrator         (2024, 3 images)
+   #09 Police Flasher LED Strobe     (2024, 4 images)
+   #10 RF Crystal Oscillator         (2024, 2 images)
+   #11 EMF Detector                  (2025, 4 images)
+   #12 HABR + Intensity LED System   (2025, 8 images, MILESTONE badge)
+
+   NOTE: Projects #3 and #5 were numbered 4 and 7 in the source image filenames.
+   There are gaps (no files for project numbers 3, 5 in source naming) —
+   these were either not submitted or use a different numbering system in the
+   original data. The portfolio renumbers sequentially for cleanliness.
+
+--------------------------------------------------------------------------------
+6. ACHIEVEMENTS PAGE — DETAILED EXPLANATION (v3.0 UPDATE)
+--------------------------------------------------------------------------------
+
+File: src/pages/AchievementsPage.tsx
+
+CHANGES FROM v2:
+  - Achievement 1 (Engineer's Day Speech) now has:
+    * YouTube video embedded (https://youtu.be/wfWqIEdFU6c?si=NJxJx4ZPuGT0Rdha)
+    * 3 additional photos (speech_4, speech_5, speech_6)
+    * Total: 7 media items (1 video + 6 photos)
+  - Removed dependency on StackedMediaViewer component
+  - Built-in AchievementViewer with same YouTube + image carousel logic
+  - All media items shown in carousel with thumbnail strip
+  - YouTube video is first item so it plays first when opened
+
+AchievementViewer:
+  - Full media modal with carousel
+  - YouTube embed for video items
+  - Image viewer for photo items
+  - Thumbnail strip at bottom showing all media
+  - Prev/Next arrow buttons
+  - Counter display (e.g. "3 / 7")
+
+Card display:
+  - Left strip shows blurred first image + media count
+  - If achievement has video: shows Play icon alongside Images icon
+  - "X ITEMS" label if has video, "X PHOTOS" if images only
+
+--------------------------------------------------------------------------------
+7. THEME — DARK PINK UPDATE
+--------------------------------------------------------------------------------
+
+Changed in: src/index.css :root variables
+
+OLD (purple):            NEW (dark pink):
+--purple:       #7c3aed  →  #dc3c82
+--purple-light: #a855f7  →  #e8609a
+--purple-dim:   #4c1d95  →  #8b1a4a
+--purple-glow:  rgba(124,58,237,0.4) → rgba(220,60,130,0.38)
+--accent:       #c084fc  →  #f07aac
+--accent2:      #818cf8  →  #e8609a
+--text:         #e2d9f3  →  #f0e0ea
+--text-dim:     #9480b3  →  #a07888
+--border:       rgba(124,58,237,0.2)  →  rgba(220,60,130,0.2)
+--border-bright: rgba(168,85,247,0.55) → rgba(220,60,130,0.52)
+
+The CSS variable names remain the same (--purple, --accent, etc.) so all
+existing components and pages automatically pick up the new pink color.
+No other files needed to be changed for the theme switch.
+
+--------------------------------------------------------------------------------
+8. HOW TO ADD NEW PROJECTS
+--------------------------------------------------------------------------------
+
+Step 1: Add image files to public/assets/projects/
+        Naming convention: {N}_Projects_media_{order}_{slug}.jpg
+        Example: 15_Projects_media_1_newproject.jpg
+
+Step 2: Open src/pages/ProjectsPage.tsx
+
+Step 3: Add a new object to the PROJECTS array:
+        {
+          id: 'p13',
+          num: '#13',
+          name: 'Your Project Name',
+          shortDesc: 'One or two sentences describing the project professionally.',
+          year: '2026',
+          tags: ['Tag1', 'Tag2', 'Tag3'],
+          coverImg: '/assets/projects/15_Projects_media_1_newproject.jpg',
+          media: [
+            { type: 'image', src: '/assets/projects/15_Projects_media_1_newproject.jpg' },
+            // add more images...
+          ],
+        }
+
+Step 4: To add a YouTube video to a project's media:
+        { type: 'youtube', src: 'https://youtu.be/YOUR_VIDEO_ID' }
+
+        The getYtId() function handles both formats:
+        - https://youtu.be/ABC123
+        - https://www.youtube.com/watch?v=ABC123
+        - https://www.youtube.com/embed/ABC123
+
+Step 5: Save. The timeline will auto-group by year and show the new project.
+
+--------------------------------------------------------------------------------
+9. HOW TO ADD NEW ACHIEVEMENTS
+--------------------------------------------------------------------------------
+
+Step 1: Add photos to public/assets/achievements/
+        Naming: achivments_{N}_{slug}_{order}.jpg (keep existing naming style)
+
+Step 2: Open src/pages/AchievementsPage.tsx
+
+Step 3: Add to ACHIEVEMENTS array:
+        {
+          id: 3,
+          title: 'Achievement Title',
+          event: 'Event Name',
+          desc: 'Description paragraph.',
+          date: '2026',
+          badge: '🥈 2ND PRIZE',  // or any emoji + label
+          media: [
+            { type: 'image', src: '/assets/achievements/your_image.jpg' },
+            { type: 'youtube', src: 'https://youtu.be/VIDEO_ID' },
+          ],
+        }
+
+--------------------------------------------------------------------------------
+10. HOW TO UPDATE OTHER PAGES
+--------------------------------------------------------------------------------
+
+Certifications (CertificationsPage.tsx):
+  - Find the CERTS array
+  - Each cert: { id, title, issuer, date, img: '/assets/certs/filename.png' }
+  - Add cert image to public/assets/certs/
+
+Contact (ContactsPage.tsx):
+  - Find the contacts array
+  - Update email, phone, location entries
+
+Socials (SocialsPage.tsx and SocialDock.tsx):
+  - Update SOCIALS array with real URLs
+
+Personal Info (PersonalInfoPage.tsx):
+  - Update skills list, timeline entries, bio text
+
+--------------------------------------------------------------------------------
+11. DEPLOYMENT
+--------------------------------------------------------------------------------
+
+Build for production:
+  cd portfolio
+  npm install
+  npm run build
+  # Output: portfolio/dist/
+
+Deploy dist/ to any static host:
+  - Nginx: point root → dist/, add try_files for SPA routing
+  - Vercel / Netlify: upload dist/ or connect git repo
+  - GitHub Pages: use gh-pages branch with dist/ contents
+
+Nginx config snippet:
+  server {
+    root /var/www/portfolio/dist;
+    index index.html;
+    location / {
+      try_files $uri $uri/ /index.html;
+    }
+  }
+
+Note: Since this is a pure SPA with no URL-based routing, any URL will
+serve index.html and the JS handles display. No server-side routing needed.
+
+--------------------------------------------------------------------------------
+12. KNOWN LIMITATIONS & NOTES
+--------------------------------------------------------------------------------
+
+- LinkedIn video embeds are NOT supported (LinkedIn blocks iframe embedding).
+  LinkedIn media items show a click-to-redirect play button instead.
+
+- The portfolio uses 'cursor: none' on body. On touch/mobile devices,
+  cursor: auto is restored via media query (@media (pointer: coarse)).
+
+- The ElectroPoolBackground uses WebGL canvas. On very old devices or
+  browsers without WebGL support, the background will be invisible (just black).
+  The rest of the site works fine without it.
+
+- Image paths use absolute paths starting with /assets/... which resolve
+  relative to the Vite dev server root (public/ folder) or the deployed
+  dist/ root. Always use /assets/ prefix, never relative paths.
+
+- The StackedMediaViewer component (src/components/StackedMediaViewer.tsx)
+  is still present in the codebase but is no longer imported by AchievementsPage.
+  It can be safely deleted or kept for future use.
+
+- Music (music.mp3) autoplay is blocked by browsers until user interaction.
+  This is handled: music starts on the first click/touch/keydown event.
+
+- YouTube embeds may be blocked in regions where YouTube is restricted.
+  No fallback is provided for this case.
+
+--------------------------------------------------------------------------------
+13. KEY DECISIONS & REASONING
+--------------------------------------------------------------------------------
+
+Why no React Router?
+  → Simpler deployment (no server config needed for routes), and the design
+    is meant to feel like a desktop app, not a website with URLs.
+
+Why CSS variables instead of Tailwind for theming?
+  → Tailwind is used for utility layout, but all brand colors are CSS vars
+    so they can be changed in one place (index.css) and cascade everywhere,
+    including inline styles in TSX components.
+
+Why inline styles in TSX instead of Tailwind classes?
+  → Framer Motion often needs dynamic style values (e.g. hover transforms,
+    conditional colors based on state). Inline styles allow this cleanly.
+    Tailwind classes are used for layout utilities like flex, grid, gap.
+
+Why 16/9 aspect ratio for media in modals?
+  → YouTube embeds are naturally 16:9. Using a fixed aspect ratio for all
+    media keeps the UI consistent. Images use objectFit:'contain' so they
+    never get cropped — they letterbox/pillarbox inside the 16:9 frame.
+
+Why dark pink (#dc3c82) as accent?
+  → User preference upgrade from original purple. Dark pink reads as energetic
+    and technical without being generic. Maintains contrast on dark backgrounds.
+
+--------------------------------------------------------------------------------
+END OF DOCUMENTATION
+================================================================================
